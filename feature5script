@@ -1,0 +1,31 @@
+#!/bin/bash
+echo "Select B to backup or R to restore"
+read input
+if [ "$input" == "B" ] ; then
+   if [ -d ./backup ]; then
+         rm ./backup/*
+      else
+         mkdir backup
+
+      fi
+
+   touch  backup/restore.log
+   new=$(find . -name "*.tmp"| sort -h)
+   echo "$new" >> backup/restore.log
+
+   find . -name "*.tmp"| xargs cp -t backup
+   cat backup/restore.log| xargs rm
+fi
+if [ "$input" == "R" ] ; then
+   to=( $(cat backup/restore.log|sort -d) )
+   from=( $(ls backup| sort -d| grep ".tmp") )
+
+   for ((i=0;i<${#from[@]};i++)); do
+      new[i]="backup/${from[i]} ${to[i]}"
+
+   done
+
+   for ((i=0;i<${#from[@]};i++)); do
+      cp ${new[i]}
+   done
+fi
